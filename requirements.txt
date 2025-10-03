@@ -1,0 +1,12 @@
+numpy
+scipy
+matplotlib
+networkx
+bs4
+selenium
+scikit-learn
+tldextract
+geocoder
+googletrans== 3.1.0a0
+transformers
+torch

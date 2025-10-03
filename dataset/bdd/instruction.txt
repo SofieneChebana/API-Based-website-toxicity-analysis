@@ -1,0 +1,50 @@
+Bon pour commencer:
+
+Ouvrir la bdd:
+sqlite3
+.open projet.db
+
+Voir les tables:
+.tables
+
+Avoir une visualisation des tables:
+.schema nom_table
+
+Pour ajouter des valeurs dans une tables :
+INSERT OR IGNORE INTO nom_tables(attribut_de_la_table) Values(les_valeurs_voulu);
+exemple:
+INSERT OR IGNORE INTO ALL_URL(URL) VALUES('https://7bet.tn/betting#/overview')
+Pas besoin d'indiquer l'id j'ai fait en sorte que ce soit autoincrement de plus je verifie aussi qu'il n'y a pas de doublons.
+
+
+Obtenir toutes les valeurs dans une tables(classique):
+Select * from nom_table;
+
+Pour savoir si un element existe dans une table:
+SELECT EXISTS(SELECT * FROM nom_table WHERE nom_attribut = 'nom');
+Renvoie 0 si existe pas et 1 si existe
+
+Si vous voulez d'autre requete envoyé moi un msg et je m'en occupe que vous puissiez passer à autres choses.
+
+CREATE TABLE ALL_URL_SAFE(ID integer primary key,URL TEXT NOT NULL,SCORE INTEGER NOT NULL,UNIQUE(URL));
+CREATE TABLE ALL_URL_NOT_SAFE(ID integer primary key,URL TEXT NOT NULL,SCORE INTEGER NOT NULL,UNIQUE(URL));
+CREATE TABLE ALL_URL(ID integer primary key,URL TEXT NOT NULL,UNIQUE(URL));
+
+
+CREATE TABLE ALL_URL_WITH_PAGE_RANK(
+    ID INTEGER PRIMARY KEY,
+    URL TEXT NOT NULL,
+    PAGERANK REAL,
+    LINK_FARM INTEGER,
+    UNIQUE(URL)
+);
+Create table ALL_URL_FINAL(
+	ID integer primary key,
+	URL TEXT NOT NULL,
+	NBR_API INTEGER NOT NULL,
+	ORIGINS_API REAL,
+	COUNTRY INTEGER,
+	WEBCONTENT REAL,
+	TOXIC INTEGER,
+	SCORE REAL NOT NULL
+);

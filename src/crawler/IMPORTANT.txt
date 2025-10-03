@@ -1,0 +1,24 @@
+J'utilise la librairie requests pour ... faire des requetes donc oubliez pas de faire un :
+python3 -m pip install requests
+ou 
+pip install requests
+
+Et aussi la lib BeautifulSoup donc :
+python3 -m pip install beautifulsoup4
+python3 -m pip install bs4
+ou 
+pip install beautifulsoup4
+pip install bs4
+
+
+
+Pour reset les tables:
+decomenter les lignes de codes 33 et 34 dans Crawler.py
+Puis ctrl c
+Puis recommenter les !
+
+Ensuite ouvrir UrlCrawler et mettre:
+INSERT OR IGNORE INTO LIST_URL(URL,PROFONDEUR,FROM_SAFE) VALUES ('https://www.unicaen.fr',0,1);
+Et :
+INSERT OR IGNORE INTO LIST_URL(URL,PROFONDEUR,FROM_SAFE) VALUES ('https://www.lequipe.fr',0,0);
+
