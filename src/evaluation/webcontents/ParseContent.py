@@ -12,7 +12,7 @@ import requests
 import time
 from locate import get_country
 
-from googletrans import Translator
+#from googletrans import Translator
 from bs4 import BeautifulSoup
 from transformers import pipeline
 
@@ -178,7 +178,7 @@ class ParseContent:
                     pass
         incr = 0
         for translation in arrayToCheck:
-            for word in translation.text:
+            for word in translation:
                 if word in power_words:
                     incr+=1
                     print(word)
@@ -209,7 +209,7 @@ class ParseContent:
                     pass
         incr = 0
         for translation in arrayToCheck:
-            result = self.pipeline(translation.text)
+            result = self.pipeline(translation)
             if result[0]["score"] > seuil_toxicite:
                 incr+=1
         return incr

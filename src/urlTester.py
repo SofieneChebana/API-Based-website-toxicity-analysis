@@ -41,6 +41,8 @@ def check(label, url):
 	
 	toxic = res[8]
 	score_final = res[9]
+
+	print("Preprocess done.")
 	
 	if isToxic(score_final, "classifier.pkl"):
 		label['text'] = "This page is toxic."
@@ -53,8 +55,8 @@ def check(label, url):
 		label['text'] = "This page is safe."
 		label.config(fg = "green")
 		if dbh.requete("SELECT COUNT(*) FROM ALL_URL_FINAL WHERE URL = ?", (url,) ) == 0:
-			dbh.requete("INSERT INTO ALL_URL_SAFE (URL, SCORE) VALUES (?, ?)", (url, score) )
-			
+			dbh.requete("INSERT INTO ALL_URL_SAFE (URL, SCORE) VALUES (?, ?)", (url, score_final) )
+	
 	dbh.deconnecter()
 	
 

@@ -21,6 +21,8 @@ import ParseContent
 import API
 import networkx as nx
 import matplotlib.pyplot as plt
+import threading
+import time
 from app import init
 import sqlite3
 #import selenium
@@ -45,9 +47,4 @@ def creationFichierGraph():
 
 if __name__ == "__main__":
 
-    main()
-
-    print("All results have been registered in the 'projet.db' database.")
-
-    #L'interface graphique se lance pour qu'on visualise les resultats.
-    #init()
+    init()

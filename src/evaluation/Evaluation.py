@@ -7,7 +7,8 @@ import evaluation.webcontents.ParseContent as ParseContent
 import requests
 import numpy as np
 from bs4 import BeautifulSoup
-from googletrans import Translator
+#from googletrans import Translator
+from deep_translator import GoogleTranslator
 import API
 
 class Evaluation:
@@ -111,7 +112,7 @@ class Evaluation:
     def evaluate_one_url(self, url, percentage_nb_api=10, percentage_origin_api=10, percentage_country=5, percentage_webcontent=15, percentage_power_word=10, percentage_page_rank=5, percentage_link_farm=45):
         page = requests.get(url)
         s = BeautifulSoup(page.text,'html.parser')
-        translator = Translator()
+        translator = GoogleTranslator()
         nbPowerWord = self.parseContent.nbrPowerWord(page.text,translator)
         webContent = self.parseContent.getContentInfo(page.text,translator,0.5)
         country = self.parseContent.getCountry(url)
