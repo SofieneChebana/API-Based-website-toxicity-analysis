@@ -5,8 +5,8 @@ from tkinter import ttk
 from tkinter.font import Font
 
 #Constantes
-URL_NOT_SAFE = ("Liste des URLs non toxiques", " FROM ALL_URL_FINAL WHERE TOXIC=1;")
-URL_SAFE = ("Liste des URLs toxiques", " FROM ALL_URL_FINAL WHERE TOXIC=0;")
+URL_NOT_SAFE = ("Liste des URLs non toxiques", "ALL_URL_FINAL WHERE TOXIC=1")
+URL_SAFE = ("Liste des URLs toxiques", "ALL_URL_FINAL WHERE TOXIC=0")
 #Table en cours d'utilisation par la fenêtre principale
 
 valeur_actuelle = URL_SAFE #1 : toxique, 0 : safe
@@ -96,24 +96,26 @@ def switch_table(input ,liste):
         else:
             valeur_actuelle = URL_SAFE        
     #print("valeur_actuelle: ", valeur_actuelle)
-    req = requete("SELECT *" + valeur_actuelle[1])
+    req = requete("SELECT * FROM " + valeur_actuelle[1] + ";")
     maj_liste(liste, req[1])
 
 """
 Focntion: Tri les URL selon leur dangerosité
-@param input : (string) "croissant" / "decroissant", ordre dans laquelle la liste est triée
+@param order : (string) "croissant" / "decroissant", ordre dans laquelle la liste est triée
 @param table : (string) correspond à la table actuellement utilisée
 @liste : (Treeview) liste dans laquelle les éléments seront affichés
 La fonction appelle la fonction maj_liste qui va mettre à jour la liste avec les résultats triés
 """
-def tri(input, table, liste):
-    debut_requete = "SELECT *" + table
-    if input == "Croissant":
+def tri(order, table, liste):
+    print(table)
+    debut_requete = "SELECT * FROM " + table
+    print(debut_requete)
+    if order == "Croissant":
         print("tri croissant en cours")
-        res = requete(debut_requete + " ORDER BY SCORE ASC")[1]
+        res = requete(debut_requete + " ORDER BY SCORE ASC;")[1]
     else:
         print("tri décroissant en cours")
-        res = requete(debut_requete + " ORDER BY SCORE DESC")[1]
+        res = requete(debut_requete + " ORDER BY SCORE DESC;")[1]
     maj_liste(liste, res)
     
 """
@@ -247,7 +249,7 @@ def init():
 
 
 	#initialisation de la fenêtre avec la liste des URL considérées comme toxiques
-	res = requete("SELECT *" + valeur_actuelle[1])
+	res = requete("SELECT * FROM " + valeur_actuelle[1] + ";")
 	#initialisation de la liste des URL avec le résultat de la requête res
 	maj_liste(liste, res[1])
 	app.mainloop()
