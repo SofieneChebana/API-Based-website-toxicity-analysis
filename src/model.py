@@ -26,7 +26,7 @@ class Model:
         
         X = [[element[0]] for element in data]
         X = np.array(X)
-        y = [element[1] for element in data] #Labellisation des données.
+        y = [element[1] for element in data] #Labellisation of the data.
         X.reshape(-1, 1)
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, y, test_size=0.3)
@@ -51,14 +51,13 @@ class Model:
 
 
 if __name__ == "__main__":
-    #Récupération des urls.
     dbh = DBHandler.DBHandler('../dataset/bdd/projet.db')
-    dbh.connecter()
+    dbh.connect()
     urls = dbh.requete("SELECT URL FROM ALL_URL")[1]
-    dbh.deconnecter()
+    dbh.disconnect()
 
     
-    #Calculs des scores de chaque url.
+    #Computing features for each url.
     rx = Reseau.Reseau()
     pc = ParseContent.ParseContent()
     api = API.APIAnalyzer()

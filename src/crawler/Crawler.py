@@ -29,7 +29,7 @@ class Crawler:
         self.MustRefineUrl = MustRefineUrl
         
         self.connection = self.connectBDD("../../dataset/bdd/UrlCrawler.db")#Connection à la bdd url(la zone ou j'entrepose les url valide que je traiterai par la suite)
-        self.connection2 = self.connectBDD("../../dataset/bdd/projet.db")#Connection à la bdd
+        self.connection2 = self.connectBDD("../../dataset/bdd/projet.db")
         self.cursor = self.connection.cursor()#Creation du cursor pour faire des requêtes
         self.cursor2 = self.connection2.cursor()
         self.parse = ParseContent.ParseContent(True)
@@ -37,8 +37,6 @@ class Crawler:
         self.translator =Translator()
         #self.cursor.execute("CREATE TABLE IF NOT EXISTS LIST_URL(URL TEXT NOT NULL,PROFONDEUR INT NOT NULL,FROM_SAFE INT NOT NULL,UNIQUE(URL))")
         #print(self.cursor.fetchall())
-        #print(self.refine_Url("https://docs.python.org/3.0/library/urllib.request.html"))
-        #print(self.robot_Allowed(self.refine_Url("https://docs.python.org/3.0/library/urllib.request.html")))
         
         self.launchCrawler()
         
@@ -50,14 +48,14 @@ class Crawler:
 
         #self.resetListUrl()
         #time.sleep(10000)
-        while(url is not None):#il reste des éléments dans la liste
+        while(url is not None):#Elements remains in list
             
             if(self.robot_Allowed(self.refine_Url(url[0]))):
                 page = requests.get(url[0])
                 print("Nouvelle Iteration")
                 #renvoie un set contenant touts les liens qui partent de url
                 links = self.gatherLink(page.text,url[0])
-                stringLinks = self.traitementLinks(links)
+                stringLinks = self.link_treatment(links)
                 #on ajoute à la liste ALL_URL le lien avec les href valables vers lequel il pointe :
                 self.nbrApi,self.originApi = self.api.analyze_url(url[0])
                 self.addALL_URL(url[0],len(links),stringLinks,self.nbPowerWord,self.webContent,self.nbrApi,self.originApi,self.country)
@@ -65,19 +63,22 @@ class Crawler:
            
 
             self.removeLIST_URL(url[0])
-            for element in self.urlTmp:#on ajoute tout les liens trouvé dans la bdd pour pas les perdres
+            for element in self.urlTmp:
                 self.addList_URL(element,url[1],url[2])
             
             
-            del self.urlTmp[:]#on vide la liste
+            del self.urlTmp[:]#clears the list
             self.cursor.execute("Select * from LIST_URL LIMIT 1 ")#prend le prochaine éléments de la liste
             url = self.cursor.fetchone()
             print("waiting 3s")
-            time.sleep(3)#La politness qu'on respecte
+            time.sleep(3)#To respect politness
         
 
 
-    def gatherLink(self,webContent,url):#récupere tout les liens disponibles à partir d'ici
+    def gatherLink(self,webContent,url):
+        """
+        Takes all the hyperlink available from the webcontent.
+        """
         SetLinks = set()
         s = BeautifulSoup(webContent,'html.parser')
         self.nbPowerWord = self.parse.nbrPowerWord(webContent,self.translator)
@@ -98,31 +99,35 @@ class Crawler:
                         if((not self.alreadyExists(valueTmp)) and (not valueTmp in self.urlTmp) and (valueTmp!=url)):#est present ou non dans la table que l'on doit remplir ou dans les liens déja cliquable
                             self.urlTmp.append(valueTmp)
         return SetLinks
-                        
-
-                 
-        #print(self.urlTmp)
     
+
 
     def removeLIST_URL(self,url):
         self.cursor.execute("DELETE FROM LIST_URL WHERE URL =?",(url,))
         self.connection.commit()
         return
 
+
+
     def addALL_URL(self,url,nb_OutGoing_Links,href,powerWord,webcontent,nbr_api,nbr_bad_origin,pays):
         self.cursor2.execute("INSERT OR IGNORE INTO ALL_URL (URL,NB_OUTGOING_LINKS,HREF,POWER_WORD,WEBCONTENT,NBR_API,NBR_API_BAD_ORIGIN,PAYS) VALUES(?,?,?,?,?,?,?,?)",(url,nb_OutGoing_Links,href,powerWord,webcontent,nbr_api,nbr_bad_origin,pays))
         self.connection2.commit()
         return
+
+
     
     def addList_URL(self,url,distance,safe):
         self.cursor.execute("INSERT OR IGNORE INTO LIST_URL (URL,PROFONDEUR,FROM_SAFE) VALUES(?,?,?)",(url,distance+1,safe))
         self.connection.commit()
         return
 
-        
+
+
     def alreadyExists(self,url):#renvoi 1 si ca existe deja et 0 sinon
         self.cursor2.execute("SELECT EXISTS(SELECT * FROM ALL_URL WHERE URL = ?)",(url,))
         return self.cursor2.fetchone()[0]
+
+
 
     def resetListUrl(self):
         self.cursor.execute("DROP TABLE IF EXISTS LIST_URL")
@@ -137,19 +142,27 @@ class Crawler:
         self.connection.commit()
         self.connection2.commit()
 
+
+
     def connectBDD(self,url):
         connect = sqlite3.connect(url)
         return connect
 
+
+
     def disconnect(self):
         self.connection.close()
 
+
+
     def refine_Url(self,url):
-        position = url.find("/",8)#je determine la position du premier / apres ceux du https://
-        if position == -1:#find à rien trouvé l'url n'a donc pas de / 
+        position = url.find("/",8)
+        if position == -1:
             return url
         else:
             return url[0:position]
+
+
 
     def robot_Allowed(self,url):
         newUrl = url+"/robots.txt"
@@ -159,10 +172,12 @@ class Crawler:
             robotFileparser.read()
             return robotFileparser.can_fetch('*',newUrl)
         except:
-            print("erreur d'accès")
+            print("access error")
             return False
+
+        
     #va prendre une liste de lien pour tout mettre dans un string ce qui sera plus simple à entreposer qu'un fichier json qui contient une liste de string 
-    def traitementLinks(self,SetLinks):
+    def link_treatment(self,SetLinks):
         res = ""
         if len(SetLinks)==0:
             return res

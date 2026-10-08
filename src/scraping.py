@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -18,15 +17,10 @@ def loadPages(dataset):
 
         try:
             driver.get(url[0])
-            
-            #Tuple avec le contenu de la page et sa distance par rapport
-            # à la page de depart du crawling.
-            pages[url[0]] = driver.page_source
+            pages[url[0]] = driver.page_source #Tuple :(pageContent, distance from the first page of the crawling)
 
         except Exception as e:
             print(f"Error processing {url}: {e}")
-            
-            #return 0 
         
         
     driver.quit()
@@ -51,7 +45,6 @@ def loadSinglePage(url):
     except Exception as e:
         print(f"Error processing {url}: {e}")
             
-        #return 0 
         
         
     driver.quit()

@@ -14,30 +14,25 @@ valeur_actuelle = URL_SAFE #1 : toxique, 0 : safe
 CHEMIN_BDD_PROJET = "../dataset/bdd/projet.db"
 
 ################################################################
-#Création d'une instance Tk pour l'interface graphique
 app = tk.Tk()
-#Styles utilisés pour l'interface graphique
 
-#couleurs utilisées pour l'interface graphique
 couleurs = dict()
 couleurs.update({"cadre" : "#6D72C3"})
-couleurs.update({"cadre_principal" : "#E5D4ED"})
-#police d'écriture
+couleurs.update({"main_frame" : "#E5D4ED"})
 titre_h1 = Font(app,family="Arial Black", size=35, underline=1)
 titre_h2 = Font(app,family="Arial Black", size=21, underline=1)
 police = Font(app,family="Arial Black", size=20)
-#styles TKinter
-app.config(bg = couleurs["cadre_principal"])
+app.config(bg = couleurs["main_frame"])
 
 style = ttk.Style()
 style.theme_use("default")
 
-style.configure("StyleDeroulant.Vertical.TScrollbar", background=couleurs["cadre_principal"], height=200)
+style.configure("StyleDeroulant.Vertical.TScrollbar", background=couleurs["main_frame"], height=200)
 style.configure("bg1.TFrame", background=couleurs["cadre"])
-style.configure("cadre_principal.TFrame", background=couleurs["cadre_principal"])
+style.configure("main_frame.TFrame", background=couleurs["main_frame"])
 style.configure("information.TLabel", height=75, width=100, font= titre_h1, background=couleurs["cadre"], foreground="#E5D4ED")
 style.configure("information_petit.TLabel", height=35, width=100, font= police, background=couleurs["cadre"], foreground="#E5D4ED")
-style.configure("dangerosite.TLabel", height=75, width=100, font=titre_h2, background=couleurs["cadre_principal"])
+style.configure("dangerosite.TLabel", height=75, width=100, font=titre_h2, background=couleurs["main_frame"])
 style.configure("nice.Treeview", fieldbackground="silver", rowheight=40)
 
 ################################################################
@@ -100,7 +95,7 @@ def switch_table(input ,liste):
     maj_liste(liste, req[1])
 
 """
-Focntion: Tri les URL selon leur dangerosité
+Function: Order URL based on dangerousness
 @param order : (string) "croissant" / "decroissant", ordre dans laquelle la liste est triée
 @param table : (string) correspond à la table actuellement utilisée
 @liste : (Treeview) liste dans laquelle les éléments seront affichés
@@ -109,12 +104,10 @@ La fonction appelle la fonction maj_liste qui va mettre à jour la liste avec le
 def tri(order, table, liste):
     print(table)
     debut_requete = "SELECT * FROM " + table
-    print(debut_requete)
+
     if order == "Croissant":
-        print("tri croissant en cours")
         res = requete(debut_requete + " ORDER BY SCORE ASC;")[1]
     else:
-        print("tri décroissant en cours")
         res = requete(debut_requete + " ORDER BY SCORE DESC;")[1]
     maj_liste(liste, res)
     
@@ -127,7 +120,7 @@ def details(data):
     print("data URL: %s" % data[1])
     #Création d'une fenêtre présentant la toxicité d'une URL
     fenetre_details = tk.Toplevel(app)
-    fenetre_details.config(bg = couleurs["cadre_principal"])
+    fenetre_details.config(bg = couleurs["main_frame"])
     fenetre_details.title("Détails de " + data[1])
     
     fenetre_details.geometry("1000x400")
@@ -136,7 +129,7 @@ def details(data):
     fenetre_details.wm_minsize(1000, 400)
     fenetre_details.wm_maxsize(fenetre_details.winfo_screenwidth(), fenetre_details.winfo_screenheight())
 
-    cadre_details = ttk.Frame(fenetre_details, style='cadre_principal.TFrame', width=450, height=600)
+    cadre_details = ttk.Frame(fenetre_details, style='main_frame.TFrame', width=450, height=600)
     cadre_details.grid(column=0, row=0, sticky="nsew")
     cadre_details.columnconfigure(0, weight=1)
     cadre_details.rowconfigure(2, weight=1)
@@ -149,7 +142,7 @@ def details(data):
     titre2.grid(column=0, row=1, sticky="nsew")
     titre2.configure(anchor="center")
     #Création d'un cadre contenant affichant les détails sur la dangerosité d'une URL
-    cadre_stats = ttk.Frame(cadre_details, style="cadre_principal.TFrame")
+    cadre_stats = ttk.Frame(cadre_details, style="main_frame.TFrame")
     cadre_stats.grid(column=0, row=2, rowspan=2, sticky="swne")
     cadre_stats.place(in_=cadre_details, anchor="c", relx=.5, rely=.5)
     #Barre de progression représentant la dangerosité totale de l'URL
@@ -188,23 +181,23 @@ def init():
 
 
 	#Cadre de la fenêtre principale
-	cadre_principal = ttk.Frame(app, style="cadre_principal.TFrame")
+	main_frame = ttk.Frame(app, style="main_frame.TFrame")
 	#Disposition des éléments à l'aide d'une grille
-	cadre_principal.grid(column=0, row=0, sticky="nsew")
-	cadre_principal.grid_rowconfigure(0, weight=1)
-	cadre_principal.grid_columnconfigure(0, weight=1)
-	cadre_principal.grid_columnconfigure(1, weight=1)
-	cadre_principal.grid_rowconfigure(1, weight=1)
-	cadre_principal.grid_rowconfigure(2, weight=1)
-	cadre_principal.grid_rowconfigure(3, weight=1)
+	main_frame.grid(column=0, row=0, sticky="nsew")
+	main_frame.grid_rowconfigure(0, weight=1)
+	main_frame.grid_columnconfigure(0, weight=1)
+	main_frame.grid_columnconfigure(1, weight=1)
+	main_frame.grid_rowconfigure(1, weight=1)
+	main_frame.grid_rowconfigure(2, weight=1)
+	main_frame.grid_rowconfigure(3, weight=1)
 	#Titre indiquant si les URL visualisées sont toxiques ou non
-	information_fenetre = ttk.Label(cadre_principal, text=valeur_actuelle[0], style="information.TLabel") 
+	information_fenetre = ttk.Label(main_frame, text=valeur_actuelle[0], style="information.TLabel") 
 	information_fenetre.configure(anchor="center")
 	information_fenetre.grid(row=0, column=0, sticky="nsew", columnspan=2)
 
 	#Création d'un cadre déroulant en utilisant Treeview (facile d'utilisation, et performant avec de grandes quantités de données)
 	#selectmode = "browse", car nous souhaitons voir les détails d'un seul URL à la fois
-	liste = ttk.Treeview(cadre_principal, columns=("URL", "Dangerosité"), selectmode="browse", show="", style="nice.Treeview")
+	liste = ttk.Treeview(main_frame, columns=("URL", "Dangerosité"), selectmode="browse", show="", style="nice.Treeview")
 	liste.tag_configure("focus", background="yellow")
 	"""
 	.bind() permet de lire un événement (double-clic gauche ici) et d'y attribuer une fonction de callback.
@@ -220,32 +213,32 @@ def init():
 	    
 
 	#Création d'un cadre contenant 2 boutons, permettant d'afficher les URLs listés comme toxiques, et les URL listées comme non toxiques.
-	frame_boutons = ttk.Frame(cadre_principal, height=100, style="bg1.TFrame")
-	frame_boutons.grid(column=0,row=1, sticky="nsew", columnspan=2)
-	frame_boutons.grid_columnconfigure(0, weight=1)
-	frame_boutons.grid_rowconfigure(0, weight=1)
-	frame_boutons.grid_columnconfigure(1, weight=1)
-	frame_boutons.grid_rowconfigure(1, weight=1)
+	frame_buttons = ttk.Frame(main_frame, height=100, style="bg1.TFrame")
+	frame_buttons.grid(column=0,row=1, sticky="nsew", columnspan=2)
+	frame_buttons.grid_columnconfigure(0, weight=1)
+	frame_buttons.grid_rowconfigure(0, weight=1)
+	frame_buttons.grid_columnconfigure(1, weight=1)
+	frame_buttons.grid_rowconfigure(1, weight=1)
 
-	bouton_toxiques = tk.Button(frame_boutons, text="URLs toxiques", command=lambda : switch_table("toxiques", liste), relief="ridge", padx=10, bg="gray16", font=police, fg="red")
+	bouton_toxiques = tk.Button(frame_buttons, text="URLs toxiques", command=lambda : switch_table("toxiques", liste), relief="ridge", padx=10, bg="gray16", font=police, fg="red")
 	bouton_toxiques.grid(column=0, row=0, sticky="nsew")
 
-	bouton_non_toxiques = tk.Button(frame_boutons, text="URL non toxiques", command=lambda : switch_table("non_toxiques" ,liste), relief="ridge", padx=10, bg="sea green", font=police, fg="pale green")
+	bouton_non_toxiques = tk.Button(frame_buttons, text="URL non toxiques", command=lambda : switch_table("non_toxiques" ,liste), relief="ridge", padx=10, bg="sea green", font=police, fg="pale green")
 	bouton_non_toxiques.grid(column=1, row=0, sticky="nsew")
 
 	#Création d'un cadre contenant des boutons de tri par ordre croissant/décroissant par rapport à la toxicité des URLs
-	frame_boutons = ttk.Frame(cadre_principal, height=100, style="bg1.TFrame")
-	frame_boutons.grid(column=0,row=3, sticky="nsew", columnspan=2)
-	frame_boutons.grid_columnconfigure(0, weight=1)
-	frame_boutons.grid_rowconfigure(0, weight=1)
-	frame_boutons.grid_columnconfigure(1, weight=1)
-	frame_boutons.grid_rowconfigure(1, weight=1)
+	frame_buttons = ttk.Frame(main_frame, height=100, style="bg1.TFrame")
+	frame_buttons.grid(column=0,row=3, sticky="nsew", columnspan=2)
+	frame_buttons.grid_columnconfigure(0, weight=1)
+	frame_buttons.grid_rowconfigure(0, weight=1)
+	frame_buttons.grid_columnconfigure(1, weight=1)
+	frame_buttons.grid_rowconfigure(1, weight=1)
 
-	bouton_tri_croissant = tk.Button(frame_boutons, text="Tri croissant", command=lambda : tri("Croissant", valeur_actuelle[1], liste), relief="ridge", padx=10, bg="#E5D4ED", font=police, fg="#1D1128")
-	bouton_tri_croissant.grid(column=0, row=0, sticky="nsew")
+	ascending_sort_button = tk.Button(frame_buttons, text="Tri croissant", command=lambda : tri("Croissant", valeur_actuelle[1], liste), relief="ridge", padx=10, bg="#E5D4ED", font=police, fg="#1D1128")
+	ascending_sort_button.grid(column=0, row=0, sticky="nsew")
 
-	bouton_tri_decroissant = tk.Button(frame_boutons, text="Tri décroissant", command=lambda : tri("Decroissant", valeur_actuelle[1], liste), relief="ridge", padx=10, bg="#1D1128", font=police, fg="#E5D4ED")
-	bouton_tri_decroissant.grid(column=1, row=0, sticky="nsew")
+	descending_sort_button = tk.Button(frame_buttons, text="Tri décroissant", command=lambda : tri("Decroissant", valeur_actuelle[1], liste), relief="ridge", padx=10, bg="#1D1128", font=police, fg="#E5D4ED")
+	descending_sort_button.grid(column=1, row=0, sticky="nsew")
 
 
 	#initialisation de la fenêtre avec la liste des URL considérées comme toxiques

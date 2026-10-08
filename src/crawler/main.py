@@ -1,9 +1,8 @@
 import Crawler
-import sqlite3
 import atexit
 
 
-def preventClosing(crawl):#permet de se deconnecter proprement de la bdd
+def preventClosing(crawl):#to disconnect properly from the database.
     for ele in crawl:  
         ele.disconnect()
     

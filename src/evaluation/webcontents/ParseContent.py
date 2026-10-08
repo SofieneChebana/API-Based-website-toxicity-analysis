@@ -123,13 +123,13 @@ class ParseContent:
         self.pipeline = pipeline(task="text-classification", model="unitary/toxic-bert", device=0)
         if not fromCrawler:
             self.dbh = DBHandler.DBHandler("../dataset/bdd/projet.db")
-            self.dbh.connecter()
+            self.dbh.connect()
             self.dico = self.dicoData()
 
 
     def dicoData(self):
         result = {}
-        command ,listeOfUrl=self.dbh.requete("Select * from ALL_URL;")
+        command ,listeOfUrl=self.dbh.query("Select * from ALL_URL;")
         for link in listeOfUrl:
             result[link[1]] = (link[4],link[5])
 
@@ -137,7 +137,7 @@ class ParseContent:
     
     def dicoCountry(self):
         result = {}
-        command ,listeOfUrl=self.dbh.requete("Select * from ALL_URL;")
+        command ,listeOfUrl=self.dbh.query("Select * from ALL_URL;")
         for link in listeOfUrl:
             result[link[1]] = link[8]
         return result
@@ -151,11 +151,11 @@ class ParseContent:
         pays = get_country(url)
         return 1 if pays in risques else 0
 
-    #est utilisé dans le crawler
+    #used in the crawler
     def nbrPowerWord(self,webContent,translator):
         arrayToCheck = []
         s = BeautifulSoup(webContent,'html.parser')
-        #("----------TITRE-------------")
+        #("----------TITLE-------------")
 
         for titre in s.find_all("title"):
             titreS= titre.string
@@ -166,11 +166,11 @@ class ParseContent:
                 except:
                     pass
    
-        #("-------------Meta---------------")
+        #("-------------META---------------")
         for meta in s.find_all("meta"):
             metaCont = meta.get("content")
             if metaCont is not None:
-                #dans le cas ou le string n'est pas de la forme de translator
+                
                 try:
                     metaCont = ' '.join(metaCont.split())
                     arrayToCheck.append(translator.translate(metaCont,dest='en'))
@@ -189,7 +189,7 @@ class ParseContent:
         arrayToCheck = []
         s = BeautifulSoup(webContent,'html.parser')
 
-        #("----------TITRE-------------")
+        #("----------TITLE-------------")
         for titre in s.find_all("title"):
             titreS = titre.string
             if(titreS is not None):
@@ -198,7 +198,7 @@ class ParseContent:
                     arrayToCheck.append(translator.translate(titreS,dest='en'))
                 except:
                     pass
-        #("----------PARAGRAPHE-----------")
+        #("----------PARAGRAPH-----------")
         for paragraph in s.find_all("p"):
             pS = paragraph.string
             if(pS is not None):

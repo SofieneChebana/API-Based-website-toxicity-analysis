@@ -1,54 +1,58 @@
 import sqlite3
 
 """
-Classe permettant d'intéragir avec une base de données Sqlite
-@path : le chemin vers la base de données
+Class built to interact with a Sqlite database.
+@path : The path towards the database
 """
 class DBHandler:
     
     def __init__(self, path):
         self.path = path
-        #nécessaire pour faire des requêtes
-        self.curseur = None
-        #on établit la connection à la base de données
+        self.cursor = None
         self.connection = None
 
+    def getCursor(self):
+            return self.cursor
+        
+    def getConnection(self):
+        return self.connection
+
+
+    
     """
-    Fonction permettant de se connecter à une base de données.
-    @return : un curseur sur la base de données afin de faire des requêtes
+    Database connection function.
+    @return : The cursor of the database in order to make requests.
     """
-    def connecter(self):
+    def connect(self):
         try:
             self.connection = sqlite3.connect(self.path)
-            self.curseur = self.connection.cursor()
+            self.cursor = self.connection.cursor()
         except:
-            print("La connection à " + self.path + " a échoué.")
-            print(self, ": curseur et connection non établis")
-        return self.curseur
+            print("Connection to " + self.path + " failed.")
+            print(self, ": cursor and connection failed to establish.")
+        return self.cursor
+
+    
     
     """
-    Fonction permettant de se déconnecter de la base de données
+    Database disconnection function.
     """
-    def deconnecter(self):
+    def disconnect(self):
         self.connection.close()
+
+
     
     """
-    Fonction prenant une commande, et renvoie la commande exécutée et le résultat correspondant
-    @commande : (string) une commande à exécuter
-    @return : (string, list) la commande exécutée et le résultat correspondant
+    Function that takes a SQL request and return its result.
+    @request : (string) the request to execute.
+    @return : (string, list) the request executed and its result.
     """
-    def requete(self, commande : str, parameters = ()):
+    def query(self, request : str, parameters = ()):
         req = None
-        #Utilisation de try et except dans le cas où une commande échoue
+
         try:
-            req = self.curseur.execute(commande, parameters) # query all_url
+            req = self.cursor.execute(request, parameters) # query all_url
             self.connection.commit()
         except:
             print("La requête a échoué")
-        return commande, req.fetchall()
-
-    def getCurseur(self):
-        return self.curseur
-    
-    def getConnection(self):
-        return self.connection
+        return request, req.fetchall()

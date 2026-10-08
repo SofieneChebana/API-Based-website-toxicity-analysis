@@ -242,14 +242,13 @@ def automatic_classification(dataset):
 
 def isToxic(score: int, filepath: str) -> int:
     """
-    Cette fonction utilise le classifieur stocké dans le fichier 'classifier.pkl' afin de déterminer 
-    si un score de toxictié d'une page web est classé toxique ou non.
+    This function uses the classifier stored in the 'model/classifier.pkl' file to determine if an url is toxic or not.
 
     Args:
-        url: La page à classifier.
+        url: The url to classify.
 
     Returns:
-        True si url est toxique, False sinon
+        True if url is toxic, False otherwise.
     """
 
     

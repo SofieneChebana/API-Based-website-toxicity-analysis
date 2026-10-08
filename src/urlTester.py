@@ -23,7 +23,7 @@ from analysis import isToxic
 
 def check(label, url):
 	dbh = DBHandler.DBHandler("../dataset/bdd/projet.db")
-	dbh.connecter()
+	dbh.connect()
 	
 	
 	rx = Reseau.Reseau()
@@ -47,17 +47,17 @@ def check(label, url):
 	if isToxic(score_final, "classifier.pkl"):
 		label['text'] = "This page is toxic."
 		label.config(fg = "red")
-		if dbh.requete("SELECT COUNT(*) FROM ALL_URL_FINAL WHERE URL = ?", (url,) ) == 0:
-			dbh.requete("INSERT OR IGNORE INTO ALL_URL_FINAL (URL,NB_API,NB_ORIGIN_API,COUNTRY,NB_TOXIC_WEBCONTENT,NB_POWER_WORD,PAGERANK,LINKFARM,TOXIC,SCORE) VALUES(?,?,?,?,?,?,?,?,?,?)",(url,nb_api,nb_api_toxiques, country, webContent,nbPowerWord,mediane, 0, toxic, score_final))
+		if dbh.query("SELECT COUNT(*) FROM ALL_URL_FINAL WHERE URL = ?", (url,) ) == 0:
+			dbh.query("INSERT OR IGNORE INTO ALL_URL_FINAL (URL,NB_API,NB_ORIGIN_API,COUNTRY,NB_TOXIC_WEBCONTENT,NB_POWER_WORD,PAGERANK,LINKFARM,TOXIC,SCORE) VALUES(?,?,?,?,?,?,?,?,?,?)",(url,nb_api,nb_api_toxiques, country, webContent,nbPowerWord,mediane, 0, toxic, score_final))
 		
 	
 	else:
 		label['text'] = "This page is safe."
 		label.config(fg = "green")
-		if dbh.requete("SELECT COUNT(*) FROM ALL_URL_FINAL WHERE URL = ?", (url,) ) == 0:
-			dbh.requete("INSERT INTO ALL_URL_SAFE (URL, SCORE) VALUES (?, ?)", (url, score_final) )
+		if dbh.query("SELECT COUNT(*) FROM ALL_URL_FINAL WHERE URL = ?", (url,) ) == 0:
+			dbh.query("INSERT INTO ALL_URL_SAFE (URL, SCORE) VALUES (?, ?)", (url, score_final) )
 	
-	dbh.deconnecter()
+	dbh.disconnect()
 	
 
 def init():

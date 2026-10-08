@@ -19,7 +19,7 @@ class Evaluation:
         self.api = api
         self.seuil = seuil
         self.dbh = DBHandler.DBHandler("../dataset/bdd/projet.db")
-        self.dbh.connecter()
+        self.dbh.connect()
         
         if self.reseau == None:
             pass
@@ -33,7 +33,7 @@ class Evaluation:
     
     def getApiDico_from_Crawler(self):
         result = {}
-        command ,listeOfUrl=self.dbh.requete("Select * from ALL_URL;")
+        command ,listeOfUrl=self.dbh.query("Select * from ALL_URL;")
         for link in listeOfUrl:
             result[link[1]] = (link[6],link[7])
 
@@ -98,9 +98,9 @@ class Evaluation:
             # print(f"element : {element}")
             # print(f"Score final :{score_final}")
             # print(f"Toxic: {toxic}")
-            self.dbh.requete("INSERT OR IGNORE INTO ALL_URL_FINAL (URL,NB_API,NB_ORIGIN_API,COUNTRY,NB_TOXIC_WEBCONTENT,NB_POWER_WORD,PAGERANK,LINKFARM,TOXIC,SCORE) VALUES(?,?,?,?,?,?,?,?,?,?)",(element,dico_Api[element][0],dico_Api[element][1], dico_country[element], dico_webcontent[element][1],dico_webcontent[element][0],dico_page_rank[element][0], dico_page_rank[element][1],toxic,score_final) )
+            self.dbh.query("INSERT OR IGNORE INTO ALL_URL_FINAL (URL,NB_API,NB_ORIGIN_API,COUNTRY,NB_TOXIC_WEBCONTENT,NB_POWER_WORD,PAGERANK,LINKFARM,TOXIC,SCORE) VALUES(?,?,?,?,?,?,?,?,?,?)",(element,dico_Api[element][0],dico_Api[element][1], dico_country[element], dico_webcontent[element][1],dico_webcontent[element][0],dico_page_rank[element][0], dico_page_rank[element][1],toxic,score_final) )
             #print(element , " : PageRank: ", dico_page_rank[element][0], " \nScore Pr: ", score_pagerank)
-        return self.dbh.requete("SELECT SCORE, TOXIC FROM ALL_URL_FINAL")[1]
+        return self.dbh.query("SELECT SCORE, TOXIC FROM ALL_URL_FINAL")[1]
     
 
     """
@@ -146,8 +146,8 @@ class Evaluation:
         score_final = score_pagerank + score_powerWord + score_WebContent+score_nb_toxic_api+score_nb_api + score_country
         score_final=score_final/100
         toxic = 1 if score_final > self.seuil else 0
-        self.dbh.requete("INSERT OR IGNORE INTO ALL_URL_FINAL (URL,NB_API,NB_ORIGIN_API,COUNTRY,NB_TOXIC_WEBCONTENT,NB_POWER_WORD,PAGERANK,LINKFARM,TOXIC,SCORE) VALUES(?,?,?,?,?,?,?,?,?,?)",(url,nb_api,nb_api_toxiques, country, webContent,nbPowerWord,mediane, 0, toxic, score_final))
-        return self.dbh.requete("SELECT * FROM ALL_URL_FINAL WHERE URL=?",(url,))[1]
+        self.dbh.query("INSERT OR IGNORE INTO ALL_URL_FINAL (URL,NB_API,NB_ORIGIN_API,COUNTRY,NB_TOXIC_WEBCONTENT,NB_POWER_WORD,PAGERANK,LINKFARM,TOXIC,SCORE) VALUES(?,?,?,?,?,?,?,?,?,?)",(url,nb_api,nb_api_toxiques, country, webContent,nbPowerWord,mediane, 0, toxic, score_final))
+        return self.dbh.query("SELECT * FROM ALL_URL_FINAL WHERE URL=?",(url,))[1]
 
 
 
@@ -183,6 +183,6 @@ class Evaluation:
     
     #pour tester
     def reset_ALL_URL(self):
-        self.dbh.requete("DROP TABLE ALL_URL_FINAL;")
-        self.dbh.requete("CREATE TABLE ALL_URL_FINAL(ID INTEGER PRIMARY KEY AUTOINCREMENT,URL TEXT NOT NULL,NB_API INTEGER NOT NULL,NB_ORIGIN_API INTEGER,COUNTRY INTEGER,NB_TOXIC_WEBCONTENT INTEGER NOT NULL,NB_POWER_WORD INTEGER NOT NULL,PAGERANK REAL,LINKFARM INTEGER,TOXIC INTEGER NOT NULL,SCORE REAL NOT NULL, UNIQUE(URL));")
-        #self.dbh.deconnecter()
+        self.dbh.query("DROP TABLE ALL_URL_FINAL;")
+        self.dbh.query("CREATE TABLE ALL_URL_FINAL(ID INTEGER PRIMARY KEY AUTOINCREMENT,URL TEXT NOT NULL,NB_API INTEGER NOT NULL,NB_ORIGIN_API INTEGER,COUNTRY INTEGER,NB_TOXIC_WEBCONTENT INTEGER NOT NULL,NB_POWER_WORD INTEGER NOT NULL,PAGERANK REAL,LINKFARM INTEGER,TOXIC INTEGER NOT NULL,SCORE REAL NOT NULL, UNIQUE(URL));")
+        #self.dbh.disconnect()
