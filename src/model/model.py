@@ -10,9 +10,9 @@ from analysis import getScores
 import DBHandler
 import API
 current_dir = os.path.dirname(os.path.abspath(__file__))
-eval_dir = os.path.join(current_dir, "evaluation/")
-reseau_dir = os.path.join(eval_dir,"reseau/")
-parseContent_dir = os.path.join(eval_dir,"webcontents/")
+eval_dir = os.path.join(current_dir, "../evaluation/")
+reseau_dir = os.path.join(eval_dir,"../reseau/")
+parseContent_dir = os.path.join(eval_dir,"../webcontents/")
 sys.path.insert(1, eval_dir)
 sys.path.insert(2,reseau_dir)
 sys.path.insert(3,parseContent_dir)
@@ -51,7 +51,7 @@ class Model:
 
 
 if __name__ == "__main__":
-    dbh = DBHandler.DBHandler('../dataset/bdd/projet.db')
+    dbh = DBHandler.DBHandler('../../dataset/bdd/projet.db')
     dbh.connect()
     urls = dbh.requete("SELECT URL FROM ALL_URL")[1]
     dbh.disconnect()

@@ -44,7 +44,7 @@ def check(label, url):
 
 	print("Preprocess done.")
 	
-	if isToxic(score_final, "classifier.pkl"):
+	if isToxic(score_final, "model/classifier.pkl"):
 		label['text'] = "This page is toxic."
 		label.config(fg = "red")
 		if dbh.query("SELECT COUNT(*) FROM ALL_URL_FINAL WHERE URL = ?", (url,) ) == 0:
