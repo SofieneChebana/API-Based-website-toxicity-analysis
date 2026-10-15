@@ -1,9 +1,7 @@
 import requests
-import sqlite3
 import pickle
 import numpy as np
 from bs4 import BeautifulSoup
-from scraping import loadPages, loadSinglePage
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -14,71 +12,6 @@ import tldextract
 
 
 TOXICITY_TRESHOLD = 2.5  # Un site est toxique si son score dépasse ce seuil.
-
-
-
-def getScores(pages):
-    """
-    Calcule le score de toxicité d'une page en se basant sur son contenu. Plus particulièrement sur ses appels APIs.
-
-    Args:
-        page : Un dictionnaire contenant les urls et leurs contenus HTML/Javascript { url -> [page_source]} 
-    
-    Returns:
-        Un dictionnaire contenant les urls et leurs scores. { url -> [score, from_safe] }
-    """
-
-    dico = dict()
-    
-    for url in pages:
-        
-        calls = 0
-        score = 0
-        
-        content = pages[url]
-
-        coefficient = 0
-
-        # Parser tous les endroits de la page où il y a des appels API:
-        soup = BeautifulSoup(content, features="lxml")
-
-        for script in soup.find_all("script"):
-            if "fetch" in script.text:
-                calls += 1
-            if "XMLHttpRequest" in script.text:
-                calls += 1
-
-        score = calls
-        
-        # Les differents criteres tels que le pagerank de l'url doivent etre placés ici je crois. 
-
-        dico[url] = score
-
-    return dico
-
-def getSingleScore(page):
-    """
-    Calcule le score de toxicité d'une page en se basant sur son contenu. Plus particulièrement sur ses appels APIs.
-
-    Args:
-        page : Contenu d'une page web.
-    
-    Returns:
-        Le score de toxicité de la page
-    """
-    calls = 0
-    score = 0
-    soup = BeautifulSoup(page, features="lxml")
-
-    for script in soup.find_all("script"):
-        if "fetch" in script.text:
-            calls += 1
-        if "XMLHttpRequest" in script.text:
-            calls += 1
-
-    score = calls
-
-    return score
 
 def get_api_info(url):
     options = Options()
@@ -130,130 +63,29 @@ def get_api_info(url):
     return result
 
 
-def manual_classification(dataset):
+def isToxic(data, filepath: str) -> bool:
     """
-    Cette fonction prends en entrée un dataset de pages web et applique une analyse de la toxicité et une classification de 
-    chacune des pages. La méthode de classification manuelle est utilisé (à l'aide d'un seuil de toxicitié défini).
-    
-    Tous les résultats sont enregistrés dans la base de donnée 'projet.db'.
-    
-    """
-    pages = loadPages(dataset)
-    print(pages)
-    print("\n")
-    dico = getScores(pages)
-    print(dico)
-    
-
-    connection = sqlite3.connect('../dataset/bdd/projet.db')
-    cursor = connection.cursor()
-
-    for url in dico:
-	
-	
-        try:
-            
-            # verifier si l'url est deja presente dans la table ALL_URL_SAFE ou ALL_URL_NOT_SAFE
-            cursor.execute("SELECT COUNT(*) FROM ALL_URL_SAFE WHERE URL = ?", (url,))
-            if cursor.fetchone()[0] > 0:
-                print(f"{url} is already in ALL_URL_SAFE table.")
-                continue  
-
-            cursor.execute("SELECT COUNT(*) FROM ALL_URL_NOT_SAFE WHERE URL = ?", (url,))
-            if cursor.fetchone()[0] > 0:
-                print(f"{url} is already in ALL_URL_NOT_SAFE table.")
-                continue  
-	    
-            # analyse de la toxicité de l'URL
-            
-            score = dico[url][0]
-            print(url , ": ", dico[url][0])
-            if score >= TOXICITY_TRESHOLD:
-                print(f"{url} is dangerous with a score of {score}.\n")
-                # ajout de l'url à la table ALL_URL_NOT_SAFE
-                cursor.execute("INSERT INTO ALL_URL_NOT_SAFE (URL, SCORE) VALUES (?, ?)", (url, score))
-                connection.commit()
-            else:
-                print(f"{url} is safe with a score of {score}.\n")
-                cursor.execute("INSERT INTO ALL_URL_SAFE (URL, SCORE) VALUES (?, ?)", (url, score))
-                connection.commit()
-
-            # on commit après chaque insertion pour sauvegarder immediatement les changements
-            #connection.commit()
-
-        except Exception as e:
-            print(f"Error processing URL {url}: {e}")
-            continue
-
-    connection.close()
-
-
-def automatic_classification(dataset):
-    """
-    Cette fonction prends en entrée un dataset de pages web et applique une analyse de la toxicité et une classification de 
-    chacune des pages. La méthode de classification automatique est utilisé (à l'aide du classifieur présent dans 'classifier.pkl').
-    
-    Tous les résultats sont enregistrés dans la base de donnée 'projet.db'.
-    
-    """
-
-    pages = loadPages(dataset)
-    dico = getScores(pages)
-
-    connection = sqlite3.connect('../dataset/bdd/projet.db')
-    cursor = connection.cursor()
-
-    for url in dico:
-
-        try:
-
-            # verifier si l'url est deja presente dans la table ALL_URL_SAFE ou ALL_URL_NOT_SAFE
-            cursor.execute("SELECT COUNT(*) FROM ALL_URL_SAFE WHERE URL = ?", (url,))
-            if cursor.fetchone()[0] > 0:
-                print(f"{url} is already in ALL_URL_SAFE table.")
-                continue  
-
-            cursor.execute("SELECT COUNT(*) FROM ALL_URL_NOT_SAFE WHERE URL = ?", (url,))
-            if cursor.fetchone()[0] > 0:
-                print(f"{url} is already in ALL_URL_NOT_SAFE table.")
-                continue
-
-            page = loadSinglePage(url)
-            score = getSingleScore(page)
-            res = isToxic(score)
-
-            if res == 1:
-                print(f"{url} is dangerous.\n")
-                # ajout de l'url à la table ALL_URL_NOT_SAFE
-                cursor.execute("INSERT INTO ALL_URL_NOT_SAFE (URL, SCORE) VALUES (?, ?)", (url, score))
-                connection.commit()
-            
-            else:
-                print(f"{url} is safe.\n")
-                cursor.execute("INSERT INTO ALL_URL_SAFE (URL, SCORE) VALUES (?, ?)", (url, score))
-                connection.commit()
-
-        except Exception as e:
-            print(f"Error processing URL {url}: {e}")
-            continue
-
-    connection.close()
-
-
-def isToxic(score: int, filepath: str) -> int:
-    """
-    This function uses the classifier stored in the 'model/classifier.pkl' file to determine if an url is toxic or not.
+    This function uses the classifier stored in the 'model/classifier.pkl' file to determine if data from a webcontent is toxic or not.
 
     Args:
-        url: The url to classify.
+        data: All data retrieved from a web page. 
 
     Returns:
-        True if url is toxic, False otherwise.
+        True if webcontent is toxic, False otherwise.
     """
 
-    
+    url = data[0]
+    nb_api = data[1]
+    nb_api_toxiques = data[2]
+    country = data[3]
+    webContent = data[4]
+    nbPowerWord = data[5]
+    mediane = data[6]
+        
+    toxic = data[8]
+    final_score = data[9]
 
-    x = [[score]]
+    x = [[nb_api],[nb_api_toxiques],[country],[webContent],[nbPowerWord],[mediane],[final_score]]
     x = np.array(x)
     x.reshape(-1, 1)
 
@@ -267,7 +99,4 @@ def isToxic(score: int, filepath: str) -> int:
             print("Safe.")
             return False
         
-if __name__ == "__main__":
-    url = "https://www.unicaen.fr/"
-    data = get_api_info(url)
-    print(data)
+

@@ -1,21 +1,26 @@
-#Dans le terminal faire:
-#python3 -m pip install networkx
+import os
+import sys
 import networkx as nx
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
-import sqlite3
 import math
-import time
 from operator import itemgetter
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+source_dir = os.path.join(current_dir,"../../")
+sys.path.insert(1,source_dir)
+import DBHandler
+
+
 class Reseau:
 
     def __init__(self):
-        self.G = nx.DiGraph()#graph orienté
-        self.pages = []#c'est les noeuds
+        self.G = nx.DiGraph()#Directed graph
+        self.pages = []#nodes
         self.dico_pages = {}
-        self.connection = self.connectBDD("../dataset/bdd/projet.db")#Connection à la bdd
-        self.cursor = self.connection.cursor()#Creation du cursor pour faire des requêtes
+        self.dbh = DBHandler.DBHandler("../../dataset/bdd/projet.db")
+        self.dbh.connect()
         
         #self.resetALL_URL_PAGERANK()
         #time.sleep(10000)
@@ -24,7 +29,7 @@ class Reseau:
         self.pr = nx.pagerank(self.G,alpha=0.85)
         #print("pageRank:",pr)
         self.data = self.dicoData(self.pr)
-        self.disconnect()
+        self.dbh.disconnect()
         
         
     def add_page(self,name):
@@ -41,8 +46,12 @@ class Reseau:
                         self.add_page(page)
                     self.G.add_edge(name,page)
 
+
+
     def getGraph(self):
         return self.G
+
+
     
     def seeGraph(self):
         print("------------------------------")
@@ -50,35 +59,36 @@ class Reseau:
         print("nombre Noeud: ",self.G.number_of_nodes())
         print("ma liste : ",self.pages)
         print("les Arretes: ",list(self.G.edges))
-    
-    def connectBDD(self,url):
-        connect = sqlite3.connect(url)
-        return connect
 
-    def disconnect(self):
-        self.connection.close()
+    
     
     def removeComma(self,href):
         res = href.split(',')
         return res
+
+
     
     def resetALL_URL_PAGERANK(self):
-        self.cursor.execute("DROP TABLE IF EXISTS ALL_URL_WITH_PAGE_RANK")
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS ALL_URL_WITH_PAGE_RANK(ID INTEGER PRIMARY KEY,URL TEXT NOT NULL,PAGERANK REAL,LINK_FARM INTEGER,UNIQUE(URL))")
+        self.dbh.query("DROP TABLE IF EXISTS ALL_URL_WITH_PAGE_RANK")
+        self.dbh.query("CREATE TABLE IF NOT EXISTS ALL_URL_WITH_PAGE_RANK(ID INTEGER PRIMARY KEY,URL TEXT NOT NULL,PAGERANK REAL,LINK_FARM INTEGER,UNIQUE(URL))")
+
+
 
     def generateLink(self):
-        self.cursor.execute("Select * from ALL_URL")
-        #print(self.cursor.fetchall())
-        url = self.cursor.fetchall()
-        for ele in url:
-            stringToSlice = ele[3]
-            liste = self.removeComma(stringToSlice)
-            self.add_page_href(ele[1],liste)
-            self.dico_pages[ele[1]] = ele[2]
+        url = self.dbh.query("SELECT * FROM ALL_URL;")
 
-        #self.cursor.execute("INSERT OR IGNORE INTO ALL_URL (URL,HREF) VALUES(?,?)",(url,href))
+        for element in url:
+            stringToSlice = element[3]
+            liste = self.removeComma(stringToSlice)
+            self.add_page_href(element[1],liste)
+            self.dico_pages[element[1]] = element[2]
+
+        #self.dbh.query("INSERT OR IGNORE INTO ALL_URL (URL,HREF) VALUES(?,?)",(url,href))
         #self.connection.commit()
         return
+
+
+    
     #limite est le seuil à franchir pour detecter 
     def dicoData(self,dico,limite=None):
         result = dict()
@@ -107,13 +117,17 @@ class Reseau:
                 if dico[ele] <value:
                     isLinkFarm =1
             result[ele] = (dico[ele], isLinkFarm)
-            # self.cursor.execute("INSERT OR IGNORE INTO ALL_URL_WITH_PAGE_RANK (URL,PAGERANK,LINK_FARM) VALUES(?,?,?)",(ele,dico[ele],isLinkFarm))
+            # self.dbh.query("INSERT OR IGNORE INTO ALL_URL_WITH_PAGE_RANK (URL,PAGERANK,LINK_FARM) VALUES(?,?,?)",(ele,dico[ele],isLinkFarm))
             # self.connection.commit()
         
         return result
 
+
+
     def getData(self):
         return self.data
+
+
 
     def getPageRank(self):
         return self.pr

@@ -122,14 +122,14 @@ class ParseContent:
     def __init__(self,fromCrawler=False):
         self.pipeline = pipeline(task="text-classification", model="unitary/toxic-bert", device=0)
         if not fromCrawler:
-            self.dbh = DBHandler.DBHandler("../dataset/bdd/projet.db")
+            self.dbh = DBHandler.DBHandler("../../dataset/bdd/projet.db")
             self.dbh.connect()
             self.dico = self.dicoData()
 
 
     def dicoData(self):
         result = {}
-        command ,listeOfUrl=self.dbh.query("Select * from ALL_URL;")
+        listeOfUrl=self.dbh.query("SELECT * FROM ALL_URL;")
         for link in listeOfUrl:
             result[link[1]] = (link[4],link[5])
 
@@ -137,7 +137,7 @@ class ParseContent:
     
     def dicoCountry(self):
         result = {}
-        command ,listeOfUrl=self.dbh.query("Select * from ALL_URL;")
+        listeOfUrl=self.dbh.query("SELECT * FROM ALL_URL;")
         for link in listeOfUrl:
             result[link[1]] = link[8]
         return result

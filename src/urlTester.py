@@ -30,32 +30,32 @@ def check(label, url):
 	pc = ParseContent.ParseContent()
 	api = API.APIAnalyzer()
 	eval = Evaluation.Evaluation(pc,api,rx)
-	res = eval.evaluate_one_url(url)[0]
-	url = res[0]
-	nb_api = res[1]
-	nb_api_toxiques = res[2]
-	country = res[3]
-	webContent = res[4]
-	nbPowerWord = res[5]
-	mediane = res[6]
+	data = eval.evaluate_one_url(url)[0]
+	url = data[0]
+	nb_api = data[1]
+	nb_api_toxiques = data[2]
+	country = data[3]
+	webContent = data[4]
+	nbPowerWord = data[5]
+	mediane = data[6]
 	
-	toxic = res[8]
-	score_final = res[9]
+	toxic = data[8]
+	final_score = data[9]
 
 	print("Preprocess done.")
 	
-	if isToxic(score_final, "model/classifier.pkl"):
-		label['text'] = "This page is toxic."
+	if isToxic(data, "model/classifier.pkl"):
+		label['text'] = "This page is toxic. \n Final score : "+ final_score
 		label.config(fg = "red")
 		if dbh.query("SELECT COUNT(*) FROM ALL_URL_FINAL WHERE URL = ?", (url,) ) == 0:
-			dbh.query("INSERT OR IGNORE INTO ALL_URL_FINAL (URL,NB_API,NB_ORIGIN_API,COUNTRY,NB_TOXIC_WEBCONTENT,NB_POWER_WORD,PAGERANK,LINKFARM,TOXIC,SCORE) VALUES(?,?,?,?,?,?,?,?,?,?)",(url,nb_api,nb_api_toxiques, country, webContent,nbPowerWord,mediane, 0, toxic, score_final))
+			dbh.query("INSERT OR IGNORE INTO ALL_URL_FINAL (URL,NB_API,NB_ORIGIN_API,COUNTRY,NB_TOXIC_WEBCONTENT,NB_POWER_WORD,PAGERANK,LINKFARM,TOXIC,SCORE) VALUES(?,?,?,?,?,?,?,?,?,?)",(url,nb_api,nb_api_toxiques, country, webContent,nbPowerWord,mediane, 0, toxic, final_score))
 		
 	
 	else:
 		label['text'] = "This page is safe."
 		label.config(fg = "green")
 		if dbh.query("SELECT COUNT(*) FROM ALL_URL_FINAL WHERE URL = ?", (url,) ) == 0:
-			dbh.query("INSERT INTO ALL_URL_SAFE (URL, SCORE) VALUES (?, ?)", (url, score_final) )
+			dbh.query("INSERT INTO ALL_URL_SAFE (URL, SCORE) VALUES (?, ?)", (url, final_score) )
 	
 	dbh.disconnect()
 	

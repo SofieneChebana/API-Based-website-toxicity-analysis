@@ -43,9 +43,9 @@ class DBHandler:
 
     
     """
-    Function that takes a SQL request and return its result.
-    @request : (string) the request to execute.
-    @return : (string, list) the request executed and its result.
+    Function that takes a SQL query and return its result.
+    @request : (string) the SQL query to execute.
+    @return : (string, list) result of the SQL query.
     """
     def query(self, request : str, parameters = ()):
         req = None
@@ -55,4 +55,4 @@ class DBHandler:
             self.connection.commit()
         except:
             print("La requête a échoué")
-        return request, req.fetchall()
+        return req.fetchall()
